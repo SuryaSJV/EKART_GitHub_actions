@@ -24,7 +24,7 @@ jobs:
 
       - name: Build with Maven
         run: mvn compile
-      
+
       - name: Build the app using Maven
         run: mvn clean install -DskipTests
 
@@ -45,19 +45,10 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/ekart-app-github-actions:latest
           file: docker/Dockerfile
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Build multi-platform Docker image
-        run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_USERNAME }}/ekart-app-github-actions:latest -f docker/Dockerfile .
-
-
       - name: Deploy to Kubernetes (Kind Cluster)
         run: |
           kubectl apply --validate=false -f deploymentservice.yml
 
-          
       - name: Expose application and get URL
         run: |
-          kubectl get svc ekart-app-service
+          kubectl get svc ekart-ssvc
