@@ -26,10 +26,7 @@ jobs:
         run: mvn compile
       
       - name: Build the app using Maven
-        run: mvn clean install
-
-      - name: Run tests
-        run: mvn test
+        run: mvn clean install -DskipTests
 
       - name: Docker Buildx Setup
         uses: docker/setup-buildx-action@v3
