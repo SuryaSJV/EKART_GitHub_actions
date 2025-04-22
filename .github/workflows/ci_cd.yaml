@@ -55,7 +55,7 @@ jobs:
 
       - name: Deploy to Kubernetes (Kind Cluster)
         run: |
-          kubectl apply --validate=false -f deploymentservice.yml
+          kubectl apply -f deploymentservice.yml
 
           
       - name: Expose application and get URL
