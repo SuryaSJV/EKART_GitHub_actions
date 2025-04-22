@@ -22,11 +22,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Set up Maven
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'adoptopenjdk'
+      - name: Build with Maven
+        run: mvn compile
       
       - name: Build the app using Maven
         run: mvn clean install
