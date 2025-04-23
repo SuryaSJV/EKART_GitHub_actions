@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout the repository
@@ -24,14 +24,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Step 3: Build the project with Maven
-      - name: Build with Maven
-        run: mvn compile
-
+      # Step 3: Build with Maven
       - name: Build the app using Maven
-        run: mvn clean install -DskipTests
+        run: |
+          mvn clean install -DskipTests
 
-      # Step 4: Docker Buildx Setup
+      # Step 4: Set up Docker Buildx
       - name: Docker Buildx Setup
         uses: docker/setup-buildx-action@v3
 
@@ -42,7 +40,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 6: Build and push Docker image to Docker Hub
+      # Step 6: Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -51,30 +49,25 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/ekart-app-github-actions:latest
           file: docker/Dockerfile
 
-      # Step 7: Install Azure CLI
-      - name: Install Azure CLI
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      # Step 7: Azure Login using Service Principal
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Step 8: Authenticate with Azure using Managed Identity
-      - name: Azure CLI Authenticate with Managed Identity
-        run: |
-          az login --identity --allow-no-subscriptions
-          az account set --subscription 3e2d34c3-c139-4530-aed3-720355ccb4e4
+      # Step 8: Set AKS context
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: aks-rg
+          cluster-name: aks-cluster
 
-      # Step 9: Get AKS credentials
-      - name: Get AKS credentials
-        run: |
-          az aks get-credentials --resource-group aks-rg --name aks-cluster --overwrite-existing
-
-      # Step 10: Deploy to Kubernetes (AKS)
-      - name: Deploy to Kubernetes (AKS)
+      # Step 9: Deploy to AKS using kubectl
+      - name: Deploy to AKS
         run: |
           kubectl apply -f deployment.yml
           kubectl apply -f service.yml
 
-      # Step 11: Expose the application and get URL
-      - name: Expose application and get URL
-        run: |
-          kubectl get svc ekart-ssvc
-
+      # Step 10: Show service info
+      - name: Get service URL
+        run: kubectl get svc ekart-service
