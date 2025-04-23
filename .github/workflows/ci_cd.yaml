@@ -12,9 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -22,21 +24,25 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Step 3: Build the project with Maven
       - name: Build with Maven
         run: mvn compile
 
       - name: Build the app using Maven
         run: mvn clean install -DskipTests
 
+      # Step 4: Docker Buildx Setup
       - name: Docker Buildx Setup
         uses: docker/setup-buildx-action@v3
 
+      # Step 5: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Step 6: Build and push Docker image to Docker Hub
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -45,10 +51,31 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/ekart-app-github-actions:latest
           file: docker/Dockerfile
 
-      - name: Deploy to Kubernetes (Kind Cluster)
-        run: |
-          kubectl apply --validate=false -f deploymentservice.yml
+      # Step 7: Set up Azure CLI
+      - name: Set up Azure CLI
+        uses: azure/cli-action@v1
+        with:
+          azure-cli-version: '2.38.0'
 
+      # Step 8: Authenticate with Azure using Managed Identity (System Assigned)
+      - name: Azure CLI: Authenticate with Managed Identity
+        run: |
+          az login --identity --allow-no-subscriptions
+          az account set --subscription <your-subscription-id>
+
+      # Step 9: Get AKS credentials
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials --resource-group aks-rg --name aks-cluster --overwrite-existing
+
+      # Step 10: Deploy to Kubernetes (AKS)
+      - name: Deploy to Kubernetes (AKS)
+        run: |
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+
+      # Step 11: Expose the application and get the URL
       - name: Expose application and get URL
         run: |
           kubectl get svc ekart-ssvc
+
