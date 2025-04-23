@@ -60,7 +60,7 @@ jobs:
       - name: Azure CLI Authenticate with Managed Identity
         run: |
           az login --identity --allow-no-subscriptions
-          az account set --subscription <your-subscription-id>
+          az account set --subscription 3e2d34c3-c139-4530-aed3-720355ccb4e4
 
       # Step 9: Get AKS credentials
       - name: Get AKS credentials
