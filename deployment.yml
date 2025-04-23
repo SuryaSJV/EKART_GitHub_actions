@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ekart-deployment
+  labels:
+    app: ekart-github-actions
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ekart-github-actions
+  template:
+    metadata:
+      labels:
+        app: ekart-github-actions
+    spec:
+      containers:
+        - name: ekart
+          image: suryasjv/ekart-app-github-actions:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8070
