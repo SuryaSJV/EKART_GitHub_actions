@@ -58,7 +58,7 @@ jobs:
           azure-cli-version: '2.38.0'
 
       # Step 8: Authenticate with Azure using Managed Identity (System Assigned)
-      - name: Azure CLI: Authenticate with Managed Identity
+      - name: Azure CLI Authenticate with Managed Identity
         run: |
           az login --identity --allow-no-subscriptions
           az account set --subscription <your-subscription-id>
