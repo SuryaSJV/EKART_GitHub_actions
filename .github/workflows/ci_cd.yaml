@@ -57,7 +57,7 @@ jobs:
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       # Step 8: Authenticate with Azure using Managed Identity
-      - name: Azure CLI: Authenticate with Managed Identity
+      - name: Azure CLI Authenticate with Managed Identity
         run: |
           az login --identity --allow-no-subscriptions
           az account set --subscription <your-subscription-id>
