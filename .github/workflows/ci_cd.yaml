@@ -51,14 +51,13 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/ekart-app-github-actions:latest
           file: docker/Dockerfile
 
-      # Step 7: Set up Azure CLI
-      - name: Set up Azure CLI
-        uses: azure/cli-action@v1
-        with:
-          azure-cli-version: '2.38.0'
+      # Step 7: Install Azure CLI
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      # Step 8: Authenticate with Azure using Managed Identity (System Assigned)
-      - name: Azure CLI Authenticate with Managed Identity
+      # Step 8: Authenticate with Azure using Managed Identity
+      - name: Azure CLI: Authenticate with Managed Identity
         run: |
           az login --identity --allow-no-subscriptions
           az account set --subscription <your-subscription-id>
@@ -74,7 +73,7 @@ jobs:
           kubectl apply -f deployment.yml
           kubectl apply -f service.yml
 
-      # Step 11: Expose the application and get the URL
+      # Step 11: Expose the application and get URL
       - name: Expose application and get URL
         run: |
           kubectl get svc ekart-ssvc
